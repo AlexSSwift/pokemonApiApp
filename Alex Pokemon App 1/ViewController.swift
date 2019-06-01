@@ -6,10 +6,6 @@
 //  Copyright © 2019 Austin Zheng. All rights reserved.
 //
 
-//fix the parseAbilityData function so the abililtyDictionaryArray doesn't start with a blank dictionary
-
-
-
 import UIKit
 
 struct Ability {
@@ -29,16 +25,17 @@ struct Move {
     let versionGroupUrl: URL
 }
 
-class ViewController: UIViewController, URLSessionDelegate, UITableViewDelegate, UITableViewDataSource {
+class ViewController: UIViewController, URLSessionDelegate, UITableViewDelegate, UITableViewDataSource, UIPickerViewDelegate, UIPickerViewDataSource {
     
     @IBOutlet weak var abilitiesTableView: UITableView!
     @IBOutlet weak var movesTableView: UITableView!
     @IBOutlet weak var pokemonNumberValue: UITextField!
     @IBOutlet weak var pokemonName: UILabel!
-    
+    @IBOutlet weak var pokemonPicker: UIPickerView!
     var session: URLSession!
     var currentPokemonName: String = ""
-    
+    var whichPokemon: String = ""
+    var pokemonNames: [String] = ["bulbasaur","ivysaur","venusaur","charmander","charmeleon","charizard","squirtle","wartortle","blastoise","caterpie","metapod","butterfree","weedle","kakuna","beedrill","pidgey","pidgeotto","pidgeot","rattata","raticate","spearow","fearow","ekans","arbok","pikachu","raichu","sandshrew","sandslash","nidoranf","nidorina","nidoqueen","nidoranm","nidorino","nidoking","clefairy","clefable","vulpix","ninetales","jigglypuff","wigglytuff","zubat","golbat","oddish","gloom","vileplume","paras","parasect","venonat","venomoth","diglett","dugtrio","meowth","persian","psyduck","golduck","mankey","primeape","growlithe","arcanine","poliwag","poliwhirl","poliwrath","abra","kadabra","alakazam","machop","machoke","machamp","bellsprout","weepinbell","victreebel","tentacool","tentacruel","geodude","graveler","golem","ponyta","rapidash","slowpoke","slowbro","magnemite","magneton","farfetchd","doduo","dodrio","seel","dewgong","grimer","muk","shellder","cloyster","gastly","haunter","gengar","onix","drowzee","hypno","krabby","kingler","voltorb","electrode","exeggcute","exeggutor","cubone","marowak","hitmonlee","hitmonchan","lickitung","koffing","weezing","rhyhorn","rhydon","chansey","tangela","kangaskhan","horsea","seadra","goldeen","seaking","staryu","starmie","scyther","jynx","electabuzz","magmar","pinsir","tauros","magikarp","gyarados","lapras","ditto","eevee","vaporeon","jolteon","flareon","porygon","omanyte","omastar","kabuto","kabutops","aerodactyl","snorlax","articuno","zapdos","moltres","dratini","dragonair","dragonite","mewtwo","mew"]
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         var numberOfRow = 0
@@ -78,7 +75,28 @@ class ViewController: UIViewController, URLSessionDelegate, UITableViewDelegate,
         }
         
     }
-
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return pokemonNames.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return pokemonNames[row]
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        whichPokemon = pokemonNames[row]
+    }
+    
+    @IBAction func buttonOnePressed(_ sender: Any) {
+        loadPokemon(whichPokemon)
+    }
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -88,11 +106,12 @@ class ViewController: UIViewController, URLSessionDelegate, UITableViewDelegate,
         abilitiesTableView.dataSource = self
         movesTableView.dataSource = self
         movesTableView.delegate = self
-        
+        pokemonPicker.dataSource = self
+        pokemonPicker.delegate = self
     }
     
-    func loadPokemon(_ id: Int) {
-        let requestURL = URL(string: "https://pokeapi.co/api/v2/pokemon/\(id)")!
+    func loadPokemon(_ id: String) {
+        let requestURL = URL(string: "https://pokeapi.co/api/v2/pokemon/\(id)/")!
         let request = URLRequest(url: requestURL)
         
         let task = session.dataTask(with: request) { (data, response, error) in
@@ -132,9 +151,6 @@ class ViewController: UIViewController, URLSessionDelegate, UITableViewDelegate,
         }
         
         task.resume()
-//        abilitiesTableView.reloadData()
-//        movesTableView.reloadData()
-//        pokemonName.text = currentPokemonName
     }
     
     func parseAbilityArray(_ array: [Any]) -> [Ability] {
@@ -225,60 +241,7 @@ class ViewController: UIViewController, URLSessionDelegate, UITableViewDelegate,
         return moveDictionaryArray
     }
     
-    
-    //turns individual characters into int
-    func whatNumber(number: Character) -> Int {
-        switch number {
-        case "0":
-            return 0
-        case "1":
-            return 1
-        case "2":
-            return 2
-        case "3":
-            return 3
-        case "4":
-            return 4
-        case "5":
-            return 5
-        case "6":
-            return 6
-        case "7":
-            return 7
-        case "8":
-            return 8
-        case "9":
-            return 9
-            
-        default:
-            fatalError("Can never happen.")
-        }
-    }
-    
-    func numberNumber(number: String) -> Int {
-        var endNumber = 0
-        var tempNumber = 0
-        var multiplier = 1
-        for digit in number.reversed() {
-            tempNumber = whatNumber(number: digit)
-            endNumber += tempNumber * multiplier
-            multiplier = multiplier * 10
-        }
-        return endNumber
-    }
-    
-    
-    @IBAction func pokemonNumberTextField(_ sender: Any) {
-        
-    }
-    
-    @IBAction func buttonOnePressed(_ sender: Any) {
-        
-        let whichPokemon = numberNumber(number: pokemonNumberValue.text!)
-        loadPokemon(whichPokemon)
-        
-    }
-    
+
     
     
 }
