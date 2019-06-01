@@ -39,6 +39,7 @@ class ViewController: UIViewController, URLSessionDelegate, UITableViewDelegate,
     var session: URLSession!
     var currentPokemonName: String = ""
     
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         var numberOfRow = 0
         switch tableView {
@@ -66,16 +67,16 @@ class ViewController: UIViewController, URLSessionDelegate, UITableViewDelegate,
             
             return cell
         } else if tableView == movesTableView {
-
+            
             let cell = tableView.dequeueReusableCell(withIdentifier: "MovesCell") as! MoveCell
-
-            cell.setMoveCell(Name: moveDictionary["name"]!, level: moveDictionary["url"]!, url: moveDictionary["level"]!, methodName: moveDictionary["methodName"]!, methodUrl: moveDictionary["methodUrl"]!, groupname: moveDictionary["groupName"]!, groupurl: moveDictionary["groupUrl"]!)
-
+            let cellTask = moveDictionary[indexPath.row]
+            cell.setMoveCell(Name: cellTask["name"]!, level: cellTask["url"]!, url: cellTask["level"]!, methodName: cellTask["methodName"]!, methodUrl: cellTask["methodUrl"]!, groupname: cellTask["groupName"]!, groupurl: cellTask["groupUrl"]!)
+            
             return cell
         } else {
             return UITableViewCell()
         }
-     
+        
     }
 
     override func viewDidLoad() {
@@ -118,6 +119,12 @@ class ViewController: UIViewController, URLSessionDelegate, UITableViewDelegate,
                 print("Moves are: \(parsedMoves)")
                 self.pokemonMoves = self.parseMoveArray(moves)
                 
+                DispatchQueue.main.async {
+                    self.abilitiesTableView.reloadData()
+                    self.movesTableView.reloadData()
+                    self.pokemonName.text = self.currentPokemonName
+                }
+                
             } catch {
                 print("WE couldn't get the JSON data!")
                 return
@@ -125,9 +132,9 @@ class ViewController: UIViewController, URLSessionDelegate, UITableViewDelegate,
         }
         
         task.resume()
-        abilitiesTableView.reloadData()
-        movesTableView.reloadData()
-        pokemonName.text = currentPokemonName
+//        abilitiesTableView.reloadData()
+//        movesTableView.reloadData()
+//        pokemonName.text = currentPokemonName
     }
     
     func parseAbilityArray(_ array: [Any]) -> [Ability] {
@@ -151,7 +158,7 @@ class ViewController: UIViewController, URLSessionDelegate, UITableViewDelegate,
     var abilityDictionary: [[String:String]] = [[:]]
     
     func parseAbilityData(pokemonAbilities: [Ability]) -> [[String:String]] {
-        var abilitydictionaryArray: [[String:String]] = [[:]]
+        var abilitydictionaryArray: [[String:String]] = []
         var abilityDictionary: [String:String] = [:]
         
         for abilityArray in pokemonAbilities {
@@ -159,14 +166,14 @@ class ViewController: UIViewController, URLSessionDelegate, UITableViewDelegate,
             abilityDictionary["url"] = "\(abilityArray.url)"
             abilityDictionary["hidden"] = "\(abilityArray.hidden)"
             abilityDictionary["slot"] = "\(abilityArray.slot)"
-             abilitydictionaryArray.append(abilityDictionary)
+            abilitydictionaryArray.append(abilityDictionary)
         }
         
         return abilitydictionaryArray
     }
     
     var pokemonMoves: [Move] = []
-    var moveDictionary: [String:String] = [:]
+    var moveDictionary: [[String:String]] = [[:]]
     
     func parseMoveArray(_ array: [Any]) -> [Move] {
         var buffer: [Move] = []
@@ -201,7 +208,8 @@ class ViewController: UIViewController, URLSessionDelegate, UITableViewDelegate,
         return buffer
     }
     
-    func parsedMoveData(pokemonMoves: [Move]) -> [String:String] {
+    func parsedMoveData(pokemonMoves: [Move]) -> [[String:String]] {
+        var moveDictionaryArray: [[String:String]] = []
         var moveDictionary: [String:String] = [:]
         
         for moveArray in pokemonMoves {
@@ -212,8 +220,9 @@ class ViewController: UIViewController, URLSessionDelegate, UITableViewDelegate,
             moveDictionary["methodUrl"] = "\(moveArray.moveLearnmethodUrl)"
             moveDictionary["groupName"] = moveArray.versionGroupName
             moveDictionary["groupUrl"] = "\(moveArray.versionGroupUrl)"
+            moveDictionaryArray.append(moveDictionary)
         }
-        return moveDictionary
+        return moveDictionaryArray
     }
     
     
