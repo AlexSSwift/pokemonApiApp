@@ -14,7 +14,7 @@ class AbilityCell: UITableViewCell {
     @IBOutlet weak var abilityUrl: UILabel!
     @IBOutlet weak var abilityHidden: UILabel!
     @IBOutlet weak var abilitySlot: UILabel!
-    
+  
     func setAbilityCell(name: String, url: String, hidden: String, slot: String) {
         abilityName.text = name
         abilityUrl.text = url

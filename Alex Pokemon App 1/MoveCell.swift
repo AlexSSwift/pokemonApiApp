@@ -8,24 +8,29 @@
 
 import UIKit
 
-class MoveCell: UITableViewCell {
+class MoveCell: UITableViewCell, UITableViewDataSource, UITableViewDelegate {
 
     @IBOutlet weak var moveName: UILabel!
-    @IBOutlet weak var levelLearnedAtNumber: UILabel!
     @IBOutlet weak var moveUrl: UILabel!
-    @IBOutlet weak var learnMethodName: UILabel!
-    @IBOutlet weak var learnMethodUrl: UILabel!
-    @IBOutlet weak var groupName: UILabel!
-    @IBOutlet weak var groupUrl: UILabel!
+    @IBOutlet weak var tableView: UITableView!
+    var groupDetails: [Move.GroupDetails] = []
     
-    func setMoveCell(Name: String, level: String, url: String, methodName: String, methodUrl: String, groupname: String, groupurl: String) {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return groupDetails.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "MoveGroupDetailCell") as! MoveGroupDetailCell
+        let cellTask = groupDetails[indexPath.row]
+        
+        cell.setUpCell(methodName: cellTask.moveLearnMethodName, groupDetailName: cellTask.versionGroupName, methodUrl: "\(cellTask.moveLearnmethodUrl)", groupDetailUrl: "\(cellTask.versionGroupUrl)", level: "\(cellTask.levelLearnedAt)")
+        
+        return cell
+    }
+    
+    func setMoveCell(Name: String, url: String) {
         moveName.text = Name
-        levelLearnedAtNumber.text = level
         moveUrl.text = url
-        learnMethodName.text = methodName
-        learnMethodUrl.text = methodUrl
-        groupName.text = groupname
-        groupUrl.text = groupurl
         
     }
     
